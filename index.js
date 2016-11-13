@@ -103,7 +103,8 @@ const scrape = type => {
             sex,
             species,
             age,
-            weight 
+            weight,
+            friends: [] // TODO:jmf implement this. It doesn't look like there's a well-structured dataset for friend connections.
         })
 
         return database.ref(`animals/${ improvedData.species }/${ improvedData.id }`).update(improvedData)  
