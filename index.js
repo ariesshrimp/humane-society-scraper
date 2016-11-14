@@ -1,5 +1,7 @@
+const fetch = require(`node-fetch`)
 const osmosis = require(`osmosis`)
-const database = require(`./database.js`)
+const { app, database } = require(`./database.js`)
+
 
 /**
  * You need a safety function because the Humane Society data is sometimes missing fields.
@@ -7,6 +9,81 @@ const database = require(`./database.js`)
  * data structures before sending them to the database.
  */ 
 const parse = (dataField, parseFunction) => dataField ? parseFunction() : null 
+
+const newEntries = []
+
+/**
+ * Reformat all the results into well-structured data for the database.
+ * Some of the values may be missing if the Humane Society hasn't been able
+ * to determine the information yet, or if the species makes knowing
+ * the answer too difficult / impossible (e.g. bird weight)
+ */
+const updateDB = data => {
+    const color = parse(data.color, () => data.color.split(`, `).map(color => color ? color.toUpperCase() : ``))
+    const sex = parse(data.sex, () => data.sex.toUpperCase())
+    const species = parse(data.species, () => {
+        const uppercased = data.species.toUpperCase()
+        if (uppercased === `PUPPY`) return `DOG`
+        else if (uppercased === `KITTEN`) return `CAT`
+        else return uppercased.replace(` `, `_`)
+    })
+
+    /**
+     * adopt_fee, age, and weight can all fail parseFloat, so they require a fallback return value. 
+     * I've decided to use null
+     */
+    const adopt_fee = parse(data.adopt_fee, () => parseFloat(data.adopt_fee.substring(1) || null))        
+    const age = parse(data.age, () => data.age
+        .split(` `)
+        .map((number, index, array) => {
+            if (array[index + 1] === `years`) return parseInt(number) * 12
+            if (array[index + 1] === `months`) return parseInt(number)
+            else return 0
+        })
+        .reduce((x, y) => x + y, 0) || null)
+    const weight = parse(data.weight, () => parseFloat(data.weight) || null)
+
+    /**
+     * Get a new structure with the formated values updated
+     */
+    const improvedData = Object.assign({}, data, {
+        adopt_fee,
+        color,
+        sex,
+        species,
+        age,
+        weight,
+        friends: [] // TODO:jmf implement this. It doesn't look like there's a well-structured dataset for friend connections.
+    })
+
+    /**
+     * Index the new id to cross check for clearing old entries
+     */
+    newEntries.push(improvedData.id)
+    return database.ref(`animals/${ improvedData.id }`).update(improvedData)
+}
+
+/**
+ * Cross reference the newly found animal ID's witht those that existed when we started 
+ * and remove all the animals that have been removed since the last update
+ */
+const clearOldEntries = newKeys => {
+    // 
+    return fetch(`https://humane-society-scrape.firebaseio.com/animals.json?shallow=true`)
+        .then(response => response.json())
+        .then(Object.keys)
+        .then(oldKeys => oldKeys.filter(key => !newKeys.includes(key)))
+        .then(keysToRemove => {
+            return Promise.all(keysToRemove.map(key => {
+                return database.ref(`animals/${ key }`).remove()
+            }))
+        })
+        // app.delete() tells firebase to close open sockets and clear the resources,
+        // allowing the node process to properly exit when finished.
+        .then(() => app.delete())
+        
+}
+
 
 const scrape = type => {
     const url = `http://www.oregonhumane.org/adopt/?type=${ type }`
@@ -59,57 +136,9 @@ const scrape = type => {
         weight: `//*[text()[contains(., 'Weight')]]/parent::tr/*[last()]`,
         id: `tr[last()] td`
     })
+    .data(updateDB) // Send each individual animal to the DB 
 
-    // For each individual animal...
-    .data(data => {
-        /**
-         * Reformat all the results into well-structured data for the database.
-         * Some of the values may be missing if the Humane Society hasn't been able
-         * to determine the information yet, or if the species makes knowing
-         * the answer too difficult / impossible (e.g. bird weight)
-         */
-        const color = parse(data.color, () => data.color.split(`, `).map(color => color ? color.toUpperCase() : ``))
-        const sex = parse(data.sex, () => data.sex.toUpperCase())
-        const species = parse(data.species, () => {
-            const uppercased = data.species.toUpperCase()
-            if (uppercased === `PUPPY`) return `DOG`
-            else if (uppercased === `KITTEN`) return `CAT`
-            else return uppercased.replace(` `, `_`)
-        })
-
-
-        /**
-         * adopt_fee, age, and weight can all fail parseFloat, so they require a fallback return value. 
-         * I've decided to use null
-         */
-        const adopt_fee = parse(data.adopt_fee, () => parseFloat(data.adopt_fee.substring(1) || null))        
-        const age = parse(data.age, () => data.age
-            .split(` `)
-            .map((number, index, array) => {
-                if (array[index + 1] === `years`) return parseInt(number) * 12
-                if (array[index + 1] === `months`) return parseInt(number)
-                else return 0
-            })
-            .reduce((x, y) => x + y, 0) || null)
-        const weight = parse(data.weight, () => parseFloat(data.weight) || null)
-
-
-        /**
-         * Get a new structure with the formated values updated
-         */
-        const improvedData = Object.assign({}, data, {
-            adopt_fee,
-            color,
-            sex,
-            species,
-            age,
-            weight,
-            friends: [] // TODO:jmf implement this. It doesn't look like there's a well-structured dataset for friend connections.
-        })
-
-        return database.ref(`animals/${ improvedData.species }/${ improvedData.id }`).update(improvedData)  
-    })
-    // .done(process.exit)
+    .done(() => clearOldEntries(newEntries))
     .log(console.log)
     .error(console.error)
     .debug(console.info)
@@ -121,4 +150,4 @@ const update = types => types.forEach(type => {
 })
 
 const types = [ `small`, `horsefarm`, `dogs`, `cats` ]  
-update(types)
+update([`small`])
