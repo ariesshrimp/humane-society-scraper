@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const fetch = require(`node-fetch`)
 const osmosis = require(`osmosis`)
 const { app, database } = require(`./database.js`)
@@ -10,6 +11,11 @@ const { app, database } = require(`./database.js`)
  */ 
 const parse = (dataField, parseFunction) => dataField ? parseFunction() : null 
 
+/** 
+ * A simple store for comparing the keys of yesterday's entries with todays.
+ * This is used to decide whether an animal should be removed from the database:
+ * if it has 'disappeard' from the website.
+ */
 const newEntries = []
 
 /**
@@ -156,4 +162,4 @@ const update = types => types.forEach(type => {
 })
 
 const types = [ `small`, `horsefarm`, `dogs`, `cats` ]  
-update([`small`])
+update(types)

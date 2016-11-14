@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 const firebase = require(`firebase`)
 const config = require(`./config.firebase.json`)
 
