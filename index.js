@@ -50,9 +50,9 @@ const updateDB = data => {
     const weight = parse(data.weight, () => parseFloat(data.weight) || null)
 
     const sex = parse(data.sex, () => {
-        const uppercase = data.sex.toUpperCase()
-        if (uppercase === `UNKNOWN`) return null 
-        else return uppercase
+        const uppercased = data.sex.toUpperCase()
+        if (uppercased === `UNKNOWN`) return null 
+        else return uppercased
     })
 
     /**
