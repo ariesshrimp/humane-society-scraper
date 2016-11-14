@@ -5,4 +5,4 @@ const config = require(`./config.firebase.json`)
 const app = firebase.initializeApp(config)
 const database = app.database()
 
-module.exports = { database, app }
+module.exports = { app, database }
