@@ -20,7 +20,6 @@ const newEntries = []
  */
 const updateDB = data => {
     const color = parse(data.color, () => data.color.split(`, `).map(color => color ? color.toUpperCase() : ``))
-    const sex = parse(data.sex, () => data.sex.toUpperCase())
     const species = parse(data.species, () => {
         const uppercased = data.species.toUpperCase()
         if (uppercased === `PUPPY`) return `DOG`
@@ -29,7 +28,8 @@ const updateDB = data => {
     })
 
     /**
-     * adopt_fee, age, and weight can all fail parseFloat, so they require a fallback return value. 
+     * adopt_fee, age, and weight can all fail parseFloat, so they require a fallback return value.
+     * sex can effectively fail if the humane soceity is unable to determine the sex easily (such as with birds) 
      * I've decided to use null
      */
     const adopt_fee = parse(data.adopt_fee, () => parseFloat(data.adopt_fee.substring(1) || null))        
@@ -42,6 +42,12 @@ const updateDB = data => {
         })
         .reduce((x, y) => x + y, 0) || null)
     const weight = parse(data.weight, () => parseFloat(data.weight) || null)
+
+    const sex = parse(data.sex, () => {
+        const uppercase = data.sex.toUpperCase()
+        if (uppercase === `UNKNOWN`) return null 
+        else return uppercase
+    })
 
     /**
      * Get a new structure with the formated values updated
