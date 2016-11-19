@@ -133,7 +133,7 @@ const scrape = type => {
   .find(`.animal-details`)
   .set({
     description: `.detail-desc p`,          
-    image: `.detail-image img @src`
+    image_url: `.detail-image img @src`
   })
 
   .find(`.detail-text`).set({ name: `h2` })
@@ -190,7 +190,7 @@ const update = () => Promise.all(promises)
   All the promises are done!
 
 `)
-    return app.delete()
+    app.delete()
   })
 // ^ app.delete() tells firebase to close open sockets and clear the resources,
 // allowing the node process to properly exit when finished.
