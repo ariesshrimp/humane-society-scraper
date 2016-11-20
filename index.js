@@ -1,6 +1,11 @@
 #!/usr/bin/env node
+'use strict'
+
+
 const fetch = require(`node-fetch`)
 const osmosis = require(`osmosis`)
+
+
 const { app, database } = require(`./database.js`)
 
 
