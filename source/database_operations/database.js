@@ -11,10 +11,6 @@ const database = app.database()
 const auth = app.auth()
 
 
-auth.signInWithEmailAndPassword(CONFIG.email, CONFIG.password)
-    .catch(console.error)
-
-
 module.exports = 
     { app 
     , auth 
