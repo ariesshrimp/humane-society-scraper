@@ -10,6 +10,7 @@
   "dependencies": {
     "firebase": "^3.6.0",
     "moment": "^2.16.0",
+    "node-fetch": "^1.6.3",
     "osmosis": "^1.1.1"
   }
 }

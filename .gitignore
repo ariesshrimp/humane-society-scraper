@@ -1,4 +1,2 @@
-node_modules
-.DS_Store
 config.firebase.json
-.vscode
+node_modules
