@@ -21,7 +21,7 @@
     "jest": "^17.0.3"
   },
   "jest": {
-    "testRegex": "__tests__.+test.js$",
+    "testRegex": "__tests__",
     "coverageDirectory": "./coverage/",
     "collectCoverage": true,
     "moduleNameMapper": {
