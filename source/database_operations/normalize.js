@@ -2,9 +2,6 @@
 'use strict'
 
 
-const { database } = require(`./database.js`)
-
-
 /**
  * You need a safety function because the Humane Society data is sometimes missing fields.
  * This is used extensively in the data() structure call below to properly format untamed
@@ -24,7 +21,7 @@ const parse = (dataField, parseFunction) => dataField ? parseFunction(dataField)
  * @param {object} data - an in memory representation of an animal from a scrape result
  * @return {object} newEntry - a reference to a Firebase object containing updated fields. 
  */
-const format = data => {
+const normalize = data => {
   const color = parse(data.color, color => color.split(`, `).map(color => color ? color.toUpperCase() : ``))
   const species = parse(data.species, species => {
     const uppercased = species.toUpperCase()
@@ -55,18 +52,18 @@ const format = data => {
     else return uppercased
   })
 
-  // Get a new structure with the formated values updated
-  const improvedData = Object.assign({}, data, 
-    { adopt_fee
-    , age
-    , color
-    , sex
-    , species
-    , weight
+  // Get a new structure with the normalized values updated
+  const normalized = Object.assign({}, data, { 
+    adopt_fee, 
+    age,
+    color, 
+    sex, 
+    species, 
+    weight
   })
 
-  return improvedData
+  return normalized
 }
 
 
-module.exports = format
+module.exports = normalize
