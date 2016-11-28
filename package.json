@@ -17,6 +17,20 @@
     "osmosis": "^1.1.1"
   },
   "devDependencies": {
+    "codecov": "^1.0.1",
     "jest": "^17.0.3"
+  },
+  "jest": {
+    "testRegex": "__tests__.+test.js$",
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true,
+    "moduleNameMapper": {
+      "moduleFileExtensions": [
+        "js"
+      ],
+      "moduleDirectories": [
+        "node_modules"
+      ]
+    }
   }
 }
