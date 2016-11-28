@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 'use strict'
 
-
 /**
  * You need a safety function because the Humane Society data is sometimes missing fields.
  * This is used extensively in the data() structure call below to properly format untamed
@@ -11,7 +10,6 @@
  * @return {any} - the result of the given parse function, or else null (in case no such field exists)
  */
 const parse = (dataField, parseFunction) => dataField ? parseFunction(dataField) : null
-
 
 /**
  * Reformat all the results into well-structured data for the database.
@@ -64,6 +62,5 @@ const normalize = data => {
 
   return normalized
 }
-
 
 module.exports = normalize

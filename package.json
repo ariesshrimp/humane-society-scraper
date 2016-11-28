@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "lint": "eslint .",
+    "start": "node index.js"
+  },
   "keywords": [],
   "author": "Joseph Fraley",
   "license": "MIT",
