@@ -2,6 +2,8 @@
 
 
 # Oregon Humane Society Scraper
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/joefraley/humane-society-scraper.svg)](https://greenkeeper.io/)
 An automated node script for serializing info from the Oregon Humane Society's animals into well-structured data.
 Currently this data is dumped into a Firebase store: https://humane-society-scrape.firebaseio.com/.
 
