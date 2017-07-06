@@ -12,14 +12,14 @@
   "author": "Joseph Fraley",
   "license": "MIT",
   "dependencies": {
-    "firebase-admin": "^4.0.3",
+    "firebase-admin": "^5.0.0",
     "node-fetch": "^1.6.3",
     "osmosis": "^1.1.1"
   },
   "devDependencies": {
-    "codecov": "^1.0.1",
-    "eslint": "^3.11.0",
-    "jest": "^17.0.3"
+    "codecov": "^2.2.0",
+    "eslint": "^4.1.1",
+    "jest": "^20.0.4"
   },
   "jest": {
     "testRegex": "__tests__",
